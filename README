@@ -1,0 +1,8 @@
+
+The following two perl scripts extract data from fits files
+and create rb database for dataseeker use.
+
+orb_elm_get_orb.perl: extract data
+orb_elm_create_rdb_file.perl: create rdb files
+
+
