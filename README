@@ -6,3 +6,11 @@ orb_elm_get_orb.perl: extract data
 orb_elm_create_rdb_file.perl: create rdb files
 
 
+/data/mta/Script/Orbital/Orb/ contains extracted raw data files
+
+/data/mta/Script/Orbital/past_data is a list of data already processed
+
+OUTPUT:
+/data/mta/DataSeeker/data/repository/aorbital.rdb
+
+
