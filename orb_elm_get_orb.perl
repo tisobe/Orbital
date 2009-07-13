@@ -5,7 +5,7 @@
 #	orb_elm_get_orb.perl: collect all orbital information from archived data and create ascii tables#
 #													#
 #		author: t. isobe (tisobe@cfa.harvard.edu)						#
-#		last update: Jan 20, 2005								#
+#		last update: Jul 13, 2009								#
 #													#
 #########################################################################################################
 
@@ -228,22 +228,29 @@ foreach $fits_file (@list){
 	
 	$cnt  = 0;
 
-	system("fdump $fits_file  ./Temp/zout 'time x y' - clobber=yes");
+	system("dmlist $fits_file opt=head > ./Temp/zout");
 	open(IN, "./Temp/zout");
 	while(<IN>){
 		chomp $_;
 		if($_ =~ /DATE-OBS/){
-			@ctemp = split(/\'/, $_);
-			@dtemp = split(/T/, $ctemp[1]);
+			@ctemp = split(/\s+/, $_);
+			@dtemp = split(/T/, $ctemp[2]);
 			@ftemp = split(/-/, $dtemp[0]);
 			$f_start = "$ftemp[0]/$ftemp[1]/$ftemp[2],$dtemp[1]";
 		}
 		if($_ =~ /DATE-END/){
-			@ctemp = split(/\'/, $_);
-			@dtemp = split(/T/, $ctemp[1]);
+			@ctemp = split(/\s+/, $_);
+			@dtemp = split(/T/, $ctemp[2]);
 			@ftemp = split(/-/, $dtemp[0]);
 			$f_end = "$ftemp[0]/$ftemp[1]/$ftemp[2],$dtemp[1]";
 		}
+	}
+	close(IN);
+
+	$line = "$fits_file".'[cols time,x,y]';
+	system("dmlist \"$line\" opt=data > ./Temp/zout");
+	open(IN, "./Temp/zout");
+	while(<IN>){
 		@btemp = split(/\s+/, $_);
 		if($btemp[1] =~ /\d/ && $btemp[2] =~ /\d/){
 			push(@time, $btemp[2]);
@@ -254,7 +261,8 @@ foreach $fits_file (@list){
 	}
 	close(IN);
 
-	system("fdump $fits_file  ./Temp/zout 'z vx vy' - clobber=yes");
+	$line = "$fits_file".'[cols z,vx,vy]';
+	system("dmlist \"$line\" opt=data > ./Temp/zout");
 	open(IN, "./Temp/zout");
 	while(<IN>){
 		chomp $_;
@@ -267,7 +275,8 @@ foreach $fits_file (@list){
 	}
 	close(IN);
 
-	system("fdump $fits_file  ./Temp/zout 'vz' - clobber=yes");
+	$line = "$fits_file".'[cols vz]';
+	system("dmlist \"$line\" opt=data > ./Temp/zout");
 	open(IN, "./Temp/zout");
 	while(<IN>){
 		chomp $_;
@@ -343,12 +352,13 @@ foreach $fits_file (@list){
 #---- read out data form the file
 #
 	foreach $fits_file2 (@angle_list){
-		system("fdump $fits_file2  ./Temp/zout 'time point_x point_y' - clobber=yes");
+		$line = "$fits_file2".'[cols time,point_x,point_y]';
+		system("dmlist \"$line\" opt=data > ./Temp/zout");
 		open(IN, "./Temp/zout");
 		while(<IN>){
 			@btemp = split(/\s+/, $_);
 			if($btemp[1] =~ /\d/ && $btemp[2] =~ /\d/){
-				push(@atime,     $btemp[2]);
+				push(@atime,      $btemp[2]);
 				push(@point_x,    $btemp[3]);
 				push(@point_y,    $btemp[4]);
 				$acnt++;
@@ -357,12 +367,13 @@ foreach $fits_file (@list){
 		close(IN);
 	
 	
-		system("fdump $fits_file2  ./Temp/zout 'point_z point_suncentang point_sunlimbang' - clobber=yes");
+		$line = "$fits_file2".'[cols point_z,point_suncentang,point_sunlimbang]';
+		system("dmlist \"$line\" opt=data > ./Temp/zout");
 		open(IN, "./Temp/zout");
 		while(<IN>){
 			@btemp = split(/\s+/, $_);
 			if($btemp[1] =~ /\d/ && $btemp[2] =~ /\d/){
-				push(@point_z,     $btemp[2]);
+				push(@point_z,  $btemp[2]);
 				push(@suncent,  $btemp[3]);
 				push(@sunlimb,  $btemp[4]);
 				$acnt++;
@@ -370,7 +381,8 @@ foreach $fits_file (@list){
 		}
 		close(IN);
 	
-		system("fdump $fits_file2  ./Temp/zout 'point_mooncentang point_moonlimbang point_earthcentang' - clobber=yes");
+		$line = "$fits_file2".'[cols point_mooncentang,point_moonlimbang,point_earthcentang]';
+		system("dmlist \"$line\" opt=data > ./Temp/zout");
 		open(IN, "./Temp/zout");
 		while(<IN>){
 			@btemp = split(/\s+/, $_);
@@ -383,7 +395,8 @@ foreach $fits_file (@list){
 		}
 		close(IN);
 	
-		system("fdump $fits_file2  ./Temp/zout 'point_earthlimbang dist_satearth sun_earthcentang' - clobber=yes");
+		$line = "$fits_file2".'[cols point_earthlimbang,dist_satearth,sun_earthcentang]';
+		system("dmlist \"$line\" opt=data > ./Temp/zout");
 		open(IN, "./Temp/zout");
 		while(<IN>){
 			@btemp = split(/\s+/, $_);
@@ -396,13 +409,14 @@ foreach $fits_file (@list){
 		}
 		close(IN);
 	
-		system("fdump $fits_file2  ./Temp/zout 'sun_earthlimbang point_ramvectorang' - clobber=yes");
+		$line = "$fits_file2".'[cols sun_earthlimbang,point_ramvectorang]';
+		system("dmlist \"$line\" opt=data > ./Temp/zout");
 		open(IN, "./Temp/zout");
 		while(<IN>){
 			@btemp = split(/\s+/, $_);
 			if($btemp[1] =~ /\d/ && $btemp[2] =~ /\d/){
-				push(@sun_earthlimb,     $btemp[2]);
-				push(@ramvector,    $btemp[3]);
+				push(@sun_earthlimb,    $btemp[2]);
+				push(@ramvector,    	$btemp[3]);
 				$acnt++;
 			}
 		}
