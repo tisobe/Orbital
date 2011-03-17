@@ -5,7 +5,7 @@
 #	orb_elm_get_orb.perl: collect all orbital information from archived data and create ascii tables#
 #													#
 #		author: t. isobe (tisobe@cfa.harvard.edu)						#
-#		last update: Jul 15, 2009								#
+#		last update: Mar 17, 2011								#
 #													#
 #########################################################################################################
 
@@ -700,7 +700,7 @@ foreach $fits_file (@list){
 }
 
 system("rm -rf ./Temp ./param");
-
+system("chgrp mtagroup  /data/mta/Script/Orbital/Orb/* /data/mta/Script/Orbital/past_data");
 
 
 
