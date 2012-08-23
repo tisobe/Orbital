@@ -5,7 +5,7 @@
 #	orb_elm_get_orb.perl: collect all orbital information from archived data and create ascii tables#
 #													#
 #		author: t. isobe (tisobe@cfa.harvard.edu)						#
-#		last update: Mar 17, 2011								#
+#		last update: Aug 23, 2012								#
 #													#
 #########################################################################################################
 
@@ -117,7 +117,7 @@ $umday++;
 #---- read user/passward
 #
 
-open(IN, "/data/mta4/MTA/data/.hakama");
+open(IN, "/data/mta/MTA/data/.hakama");
 while(<IN>){
        	chomp $_;
        	$hakama = $_;
@@ -125,7 +125,7 @@ while(<IN>){
 }
 close(IN);
 
-open(IN, '/data/mta4/MTA/data/.dare');
+open(IN, '/data/mta/MTA/data/.dare');
 while(<IN>){
        	chomp $_;
        	$dare = $_;

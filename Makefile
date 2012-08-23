@@ -3,9 +3,9 @@
 ############################
 TASK = Orbital
 
-include /data/mta4/MTA/include/Makefile.MTA
+include /data/mta/MTA/include/Makefile.MTA
 
-BIN  = orb_elm_create_rdb_file.perl    orb_elm_get_orb.perl
+BIN  = orb_elm_create_rdb_file.perl    orb_elm_get_orb.perl orb_elm_main_script orb_elm_wrap_script
 DOC  = README
 
 install:

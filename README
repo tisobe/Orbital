@@ -1,16 +1,92 @@
 
-The following two perl scripts extract data from fits files
-and create rb database for dataseeker use.
+################################
+Creating Orbital Data RDB files
+################################
 
-orb_elm_get_orb.perl: extract data
-orb_elm_create_rdb_file.perl: create rdb files
+This set of scripts extract orbital element related data from
+archived data and create rdb files.
 
 
-/data/mta/Script/Orbital/Orb/ contains extracted raw data files
+The RDB file should be tab-delimited.  It is just an ascii file.  The only
+thing special is the 2-line header.  The first line should be column names
+(tab-delimited), the second line is a format code (N for number, S for
+string).  See /data/mta/DataSeeker/data/repository/dephem.rdb for an example.
+You can put your file in this directory too.  The time format should be in
+seconds since Jan 1, 1998.
 
-/data/mta/Script/Orbital/past_data is a list of data already processed
+data will be stored in
 
-OUTPUT:
-/data/mta/DataSeeker/data/repository/aorbital.rdb
+/data/mta/DataSeeker/data/repository
 
+
+########################
+Descriptions of Scripts
+########################
+
+All scripts below are in /data/mta/MTA/bin
+
+orb_elm_get_orb.perl
+--------------------
+This script collects all orbital information from archived data and create 
+ascii tables
+
+Input:
+	/data/mta/Script/Orbital/Orb/:	past data 
+	/data/mta/MTA/data/.dare:	a user name
+	/data/mta/MTA/data/.hakama	a user password
+
+	frorm arc4gl:
+	orbitf*_eph1.fits: 		orbital fits data file from archive
+	anglef*_eph1.fits:		orbital angle fits data file
+
+Output:
+	/data/mta/Script/Orbital/Orb/orbit_data_<time_stamp>
+		where <time_stamp> is obs time in sec from 1998.1.1
+
+
+orb_elm_create_rdb_file.perl
+----------------------------
+This script reads data from Orbital directory and create 2 rdb files
+
+If you attach an argument "all", it will collect data from the begining
+otherwise, just add new data to the past data 
+
+Input:
+	/data/mta/Script/Orbital/Orb/oribt_data_<time_stamp>: all oribtal data
+
+Output:
+	/data/mta/DataSeeker/data/repository/aorbital.rdb
+			---- orbital element related data
+				time    
+				X       
+				Y       
+				Z       
+				VX      
+				VY      
+				VZ      
+				Point_X 
+				Point_Y 
+				Point_Z
+
+	/data/mta/DataSeeker/data/repository/orb_angle.rdb
+			---- orbital angle related data
+				time    
+				SunCentAng      
+				SunLimbAng      
+				MoonCentAng     
+				MoonLimbAng     
+				EarthCentAng    
+				EarthLimbAng    
+				Dist_SatEarth   
+				Sun_EarthCent   
+				Sun_EarthLimb 
+				RamVector
+
+orb_elm_wrap_script
+-------------------
+A wrap script to run orb_elm_main_script
+
+orb_elm_main_script
+-------------------
+A main script to run two perl scripts
 

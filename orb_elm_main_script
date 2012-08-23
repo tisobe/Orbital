@@ -1,0 +1,3 @@
+setascds
+perl /data/mta/MTA/orb_elm_get_orb.perl
+perl /data/mta/MTA/orb_elm_create_rdb_file.perl
