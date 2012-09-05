@@ -1,3 +1,13 @@
-setascds
-perl /data/mta/MTA/orb_elm_get_orb.perl
-perl /data/mta/MTA/orb_elm_create_rdb_file.perl
+source /home/mta/.ascrc
+
+rm -rf param
+mkdir param
+
+source /home/mta/bin/reset_param
+
+setenv PFILES "${PDIRS}"
+set path = (/home/ascds/DS.release/bin/  $path)
+set path = (/home/ascds/DS.release/ots/bin/ $path)
+
+perl /data/mta/MTA/bin/orb_elm_get_orb.perl
+perl /data/mta/MTA/bin/orb_elm_create_rdb_file.perl
