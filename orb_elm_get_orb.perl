@@ -5,9 +5,19 @@
 #	orb_elm_get_orb.perl: collect all orbital information from archived data and create ascii tables#
 #													#
 #		author: t. isobe (tisobe@cfa.harvard.edu)						#
-#		last update: Aug 23, 2012								#
+#		last update: Feb 27, 2013								#
 #													#
 #########################################################################################################
+
+#
+#--- check whether this is a test case
+#
+$comp_test = $ARGV[0];
+chomp $comp_test;
+
+if($comp_test =~ /test/i){
+	system('mkdir /data/mta/Script/Orbital/Test_out/');
+}
 
 #
 #--- create a temporary directory and a parameter directory
@@ -43,11 +53,15 @@ system('mkdir ./Temp/Angle');
 #--- we need to recompute the last one, just in a case, a new data are added on to it
 #
 
-$list = `ls -rt /data/mta/Script/Orbital/Orb/*`;
-@a_list = split(/\s+/, $list);
-$last_time = pop(@a_list);
-@atemp = split(/data_/, $last_time);
-$last_time = $atemp[1];
+if($comp_test =~ /test/i){
+	$last_time = 474725103;				#---- Feb 18, 2013 collected (Jan 16, 2013)
+}else{
+	$list = `ls -rt /data/mta/Script/Orbital/Orb/*`;
+	@a_list = split(/\s+/, $list);
+	$last_time = pop(@a_list);
+	@atemp = split(/data_/, $last_time);
+	$last_time = $atemp[1];
+}
 
 #
 #--- change sec from 1998.1.1 to year and y-date
@@ -107,7 +121,11 @@ if($yday < 32){
 #---- find today's date
 #
 
-($usec, $umin, $uhour, $umday, $umon, $uyear, $uwday, $uyday, $uisdst)= localtime(time);
+if($comp_test =~ /test/i){
+	($usec, $umin, $uhour, $umday, $umon, $uyear, $uwday, $uyday, $uisdst)= (0, 0, 0, 26, 1,  113, 3, 57, 0);
+}else{
+	($usec, $umin, $uhour, $umday, $umon, $uyear, $uwday, $uyday, $uisdst)= localtime(time);
+}
 
 $uyear += 1900;
 $umon++;
@@ -455,7 +473,11 @@ foreach $fits_file (@list){
 #
 #---- open an output file: name is appended with the time stamp
 #
-	$orbit_file = "/data/mta/Script/Orbital/Orb/orbit_data_$time_stamp";
+	if($comp_test =~ /test/i){
+		$orbit_file = "/data/mta/Script/Orbital/Test_out/orbit_data_$time_stamp";
+	}else{
+		$orbit_file = "/data/mta/Script/Orbital/Orb/orbit_data_$time_stamp";
+	}
 	open(OUT, ">$orbit_file");
 
 	print OUT "#time\t";

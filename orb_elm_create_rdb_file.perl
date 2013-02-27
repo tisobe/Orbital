@@ -9,9 +9,15 @@
 #												#
 #	author: t isobe (tisobe@cfa.harvard.edu)						#
 #												#
-#	last update: Jan 20, 2005								#
+#	last update: Feb 27, 2013								#
 #												#
 #################################################################################################
+
+#
+#--- check whether this is a test case. 
+#
+$comp_test = $ARGV[0];
+chomp $comp_test;
 
 #
 #--- create a temporary directory and a parameter directory
@@ -47,7 +53,11 @@ system('mkdir ./Temp/Angle');
 #--- read current data sets
 #
 
-$a_list = `ls /data/mta/Script/Orbital/Orb/orbit_data_*`;
+if($comp_test =~ /test/i){
+	$a_list = `ls /data/mta/Script/Orbital/Test_out/orbit_data_*`;
+}else{
+	$a_list = `ls /data/mta/Script/Orbital/Orb/orbit_data_*`;
+}
 @new_list = split(/\s+/, $a_list);
 
 #
@@ -106,10 +116,16 @@ if($check =~ /all/){
 #
 #---- the case that we are just adding new data to the already existing database
 #
-	open(OUT1, '>>/data/mta/DataSeeker/data/repository/aorbital.rdb');
-	open(OUT2, '>>/data/mta/DataSeeker/data/repository/orb_angle.rdb');
+	if($comp_test =~ /test/i){
+		open(OUT1, '>>/data/mta/Script/Orbital/Test_out/aorbital.rdb');
+		open(OUT2, '>>/data/mta/Script/Orbital/Test_out/orb_angle.rdb');
+		open(FH, '/data/mta/Script/Orbital/Obrbital/Test_prep/past_data_test');
+	}else{
+		open(OUT1, '>>/data/mta/DataSeeker/data/repository/aorbital.rdb');
+		open(OUT2, '>>/data/mta/DataSeeker/data/repository/orb_angle.rdb');
+		open(FH, '/data/mta/Script/Orbital/past_data');
+	}
 
-	open(FH, '/data/mta/Script/Orbital/past_data');
 	@past_data = ();
 	while(<FH>){
 		chomp $_;
@@ -164,7 +180,9 @@ close(OUT1);
 close(OUT2);
 close(FH);
 
-system('ls /data/mta/Script/Orbital/Orb/orbit_data_* >  /data/mta/Script/Orbital/past_data');
+if($comp_test !~ /test/i){
+	system('ls /data/mta/Script/Orbital/Orb/orbit_data_* >  /data/mta/Script/Orbital/past_data');
+}
 
 system("rm -rf ./Temp ./param");
 
