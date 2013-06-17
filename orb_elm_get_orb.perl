@@ -5,7 +5,7 @@
 #	orb_elm_get_orb.perl: collect all orbital information from archived data and create ascii tables#
 #													#
 #		author: t. isobe (tisobe@cfa.harvard.edu)						#
-#		last update: Feb 27, 2013								#
+#		last update: May 14, 2013								#
 #													#
 #########################################################################################################
 
@@ -169,7 +169,7 @@ print OUT "filename=orbitf%\n";
 print OUT "go\n";
 close(OUT);
 
-system("echo $hakama  |/home/ascds/DS.release/bin/arc4gl -U$dare -Sarcocc -i./Temp/input_line > ./Temp/zout") ; 
+system("echo $hakama  |arc4gl -U$dare -Sarcocc -i./Temp/input_line > ./Temp/zout") ; 
 system("rm ./Temp/input_line");
 
 open(FH, './Temp/zout');
@@ -215,7 +215,7 @@ foreach $file (@file_name){
 	print OUT "go\n";
 	close(OUT);
 	
-	system("cd ./Temp/Orbit/; echo $hakama  |/home/ascds/DS.release/bin/arc4gl -U$dare -Sarcocc -i./input_line") ; 
+	system("cd ./Temp/Orbit/; echo $hakama  |arc4gl -U$dare -Sarcocc -i./input_line") ; 
 }
 system("rm ./Temp/Orbit/input_line");
 system("gzip -d ./Temp/Orbit/*gz");
@@ -335,7 +335,7 @@ foreach $fits_file (@list){
 	print OUT "go\n";
 	close(OUT);
 
-	system("cd ./Temp/Angle; echo $hakama  |/home/ascds/DS.release/bin/arc4gl -U$dare -Sarcocc -i./input_line") ; 
+	system("cd ./Temp/Angle; echo $hakama  |arc4gl -U$dare -Sarcocc -i./input_line") ; 
 	system("rm ./Temp/Angle/input_line");
 
 	system("gzip -d ./Temp/Angle/*gz");
