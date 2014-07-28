@@ -5,7 +5,7 @@
 #	orb_elm_get_orb.perl: collect all orbital information from archived data and create ascii tables#
 #													#
 #		author: t. isobe (tisobe@cfa.harvard.edu)						#
-#		last update: May 14, 2013								#
+#		last update: Jul 28, 2014								#
 #													#
 #########################################################################################################
 
@@ -23,25 +23,15 @@ if($comp_test =~ /test/i){
 #--- create a temporary directory and a parameter directory
 #
 
-$alist = `ls -d *`;
-@dlist = split(/\s+/, $alist);
-
-OUTER:
-foreach $dir (@dlist){
-        if($dir =~ /param/){
-                system("rm ./param/*");
-                last OUTER;
-        }
+$chk = is_file_exist('./', 'param');
+if($chk == 1){
+    system('rm -rf ./param');
 }
-
 system('mkdir ./param');
 
-OUTER:
-foreach $dir (@dlist){
-        if($dir =~ /Temp/){
-                system("rm ./Temp/*");
-                last OUTER;
-        }
+$chk = is_file_exist('./', 'Temp');
+if($chk == 1){
+    system('rm -rf ./Temp');
 }
 
 system('mkdir ./Temp');
@@ -192,15 +182,20 @@ system("rm ./Temp/zout");
 #---- now retrieve from archive
 #
 
-$alist = `ls -d ./Temp/Orbit/*`;
-@dlist = split(/\s+/, $alist);
+#$alist = `ls -d ./Temp/Orbit/*`;
+#@dlist = split(/\s+/, $alist);
+#
+#OUTER:
+#foreach $dir (@dlist){
+#        if($dir =~ /fits/){
+#                system("rm ./Temp/Orbit/*.fits");
+#                last OUTER;
+#        }
+#}
 
-OUTER:
-foreach $dir (@dlist){
-        if($dir =~ /fits/){
-                system("rm ./Temp/Orbit/*.fits");
-                last OUTER;
-        }
+$chk = is_dir_empty(' ./Temp/Orbit/');
+if($chk == 1){
+    system("rm ./Temp/Orbit/*");
 }
 
 foreach $file (@file_name){
@@ -217,11 +212,18 @@ foreach $file (@file_name){
 	
 	system("cd ./Temp/Orbit/; echo $hakama  |arc4gl -U$dare -Sarcocc -i./input_line") ; 
 }
-system("rm ./Temp/Orbit/input_line");
-system("gzip -d ./Temp/Orbit/*gz");
+$chk = is_file_exist('./Temp/Orbit/','input_list');
+if($chk ==1){
+    system("rm ./Temp/Orbit/input_line");
+}
+$chk = is_file_exist('./Temp/Orbit/','gz');
+if($chk == 1){
+    system("gzip -d ./Temp/Orbit/*gz");
+}
 
-$a_list = `ls ./Temp/Orbit/*fits`;
-@list = split(/\s+/, $a_list);
+#$a_list = `ls ./Temp/Orbit/*fits`;
+#@list = split(/\s+/, $a_list);
+@list = get_file_list('./Temp/Orbit/', 'fits');
 
 foreach $fits_file (@list){
 
@@ -312,16 +314,18 @@ foreach $fits_file (@list){
 #--- get corresponding orbital angle files from archive database
 #
 
-	$alist = `ls -d ./Temp/Angle/*`;
-	@dlist = split(/\s+/, $alist);
-	
-	OUTER:
-	foreach $dir (@dlist){
-        	if($dir =~ /fits/){
-                	system("rm ./Temp/Angle/*.fits");
-                	last OUTER;
-        	}
-	}
+#	$alist = `ls -d ./Temp/Angle/*`;
+#	@dlist = split(/\s+/, $alist);
+#	
+#	OUTER:
+#	foreach $dir (@dlist){
+#        	if($dir =~ /fits/){
+#                	system("rm ./Temp/Angle/*.fits");
+#                	last OUTER;
+#        	}
+#	}
+    system("rm ./Temp/*fits 2>&/dev/null");
+
 
 	open(OUT, ">./Temp/Angle/input_line");
 	print OUT "operation=retrieve\n";
@@ -343,8 +347,9 @@ foreach $fits_file (@list){
 #
 #--- here is the list of angle data files
 #
-	$a_list = `ls ./Temp/Angle/angle*_eph1.fits`;
-	@angle_list = split(/\s+/, $a_list);
+#	$a_list = `ls ./Temp/Angle/angle*_eph1.fits`;
+#	@angle_list = split(/\s+/, $a_list);
+    @angle_list = get_file_list('./Temp/Angle/','angle(.*)_eph1.fits$');
 	
 	@atime          = ();
 	@point_x        = ();
@@ -837,3 +842,77 @@ sub y1999sec_to_ydate{
 	return($time);
 }
 		
+
+
+######################################################################################
+### is_dir_empty: check whether the directry is empty                              ###
+######################################################################################
+
+sub is_dir_empty{
+
+    my ($path) = @_;
+    opendir(DIR, $path);
+
+    if(scalar(grep( !/^\.\.?$/, readdir(DIR)) == 0)) {
+        closedir DIR;
+        return 0;                           #---- yes the directory is empty
+    }else{
+        closedir DIR;
+        return 1;                           #---- no the directory is not empty
+    }
+}
+
+######################################################################################
+### is_file_exist: check whether file with a pattern exist                         ###
+######################################################################################
+
+sub is_file_exist{
+
+
+    my ($path, $pattern) = @_;
+
+    $cout = 0;
+    $chk  = is_dir_empty($path);
+    if($chk == 1){
+        system("ls $path/* > ./ztemp");
+        open(FTIN, "./ztemp");
+
+        while(<FTIN>){
+            chomp $_;
+            if($_ =~ /$pattern/){
+                $cout = 1;
+                last;
+            }
+        }
+        close(FTIN);
+        system("rm ./ztemp");
+    }
+    return $cout;
+}
+
+######################################################################################
+### get_file_list: find files with a given pattern in the given directory          ###
+######################################################################################
+
+sub get_file_list{
+
+
+    my ($path, $pattern) = @_;
+
+    @out = ();
+    $chk = is_file_exist($path, $pattern);      #--- check the file exist first
+    if($chk == 1){
+        system("ls $path/* > ./ztemp");
+        open(FTIN, "./ztemp");
+        while(<FTIN>){
+            chomp $_;
+            if($_ =~ /$pattern/){
+                push(@out, $_);
+            }
+        }
+        close(FTIN);
+        system("rm ./ztemp");
+    }
+    return @out;
+}
+

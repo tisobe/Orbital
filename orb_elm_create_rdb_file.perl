@@ -9,7 +9,7 @@
 #												#
 #	author: t isobe (tisobe@cfa.harvard.edu)						#
 #												#
-#	last update: Feb 27, 2013								#
+#	last update: Jul 28, 2014								#
 #												#
 #################################################################################################
 
@@ -22,32 +22,20 @@ chomp $comp_test;
 #
 #--- create a temporary directory and a parameter directory
 #
-
-$alist = `ls -d *`;
-@dlist = split(/\s+/, $alist);
-
-OUTER:
-foreach $dir (@dlist){
-        if($dir =~ /param/){
-                system("rm ./param/*");
-                last OUTER;
-        }
+$chk = is_file_exist('./', 'param');
+if($chk == 1){
+    system("rm -rf ./param");
 }
-
 system('mkdir ./param');
 
-OUTER:
-foreach $dir (@dlist){
-        if($dir =~ /Temp/){
-                system("rm ./Temp/*");
-                last OUTER;
-        }
+$chk = is_file_exist('./', 'Temp');
+if($chk == 1){
+    system("rm -rf ./Temp");
 }
 
 system('mkdir ./Temp');
 system('mkdir ./Temp/Orbit');
 system('mkdir ./Temp/Angle');
-
 
 #
 #--- read current data sets
@@ -185,4 +173,77 @@ if($comp_test !~ /test/i){
 }
 
 system("rm -rf ./Temp ./param");
+
+
+######################################################################################
+### is_dir_empty: check whether the directry is empty                              ###
+######################################################################################
+
+sub is_dir_empty{
+
+    my ($path) = @_;
+    opendir(DIR, $path);
+
+    if(scalar(grep( !/^\.\.?$/, readdir(DIR)) == 0)) {
+        closedir DIR;
+        return 0;                           #---- yes the directory is empty
+    }else{
+        closedir DIR;
+        return 1;                           #---- no the directory is not empty
+    }
+}
+
+######################################################################################
+### is_file_exist: check whether file with a pattern exist                         ###
+######################################################################################
+
+sub is_file_exist{
+
+
+    my ($path, $pattern) = @_;
+
+    $cout = 0;
+    $chk  = is_dir_empty($path);
+    if($chk == 1){
+        system("ls  $path/* > ./ztemp");
+        open(FTIN, "./ztemp");
+
+        while(<FTIN>){
+            chomp $_;
+            if($_ =~ /$pattern/){
+                $cout = 1;
+                last;
+            }
+        }
+        close(FTIN);
+        system("rm ./ztemp");
+    }
+    return $cout;
+}
+
+######################################################################################
+### get_file_list: find files with a given pattern in the given directory          ###
+######################################################################################
+
+sub get_file_list{
+
+
+    my ($path, $pattern) = @_;
+
+    @out = ();
+    $chk = is_file_exist($path, $pattern);      #--- check the file exist first
+    if($chk == 1){
+        system("ls $path/* > ./ztemp");
+        open(FTIN, "./ztemp");
+        while(<FTIN>){
+            chomp $_;
+            if($_ =~ /$pattern/){
+                push(@out, $_);
+            }
+        }
+        close(FTIN);
+        system("rm ./ztemp");
+    }
+    return @out;
+}
 
