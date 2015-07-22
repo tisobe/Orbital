@@ -5,8 +5,5 @@ mkdir param
 
 source /home/mta/bin/reset_param
 
-set path = (/home/ascds/DS.release/bin/  $path)
-set path = (/home/ascds/DS.release/ots/bin/ $path)
-
 perl /data/mta/Script/Orbital/Orbital/orb_elm_get_orb.perl		test
 perl /data/mta/Script/Orbital/Orbital/orb_elm_create_rdb_file.perl	test
